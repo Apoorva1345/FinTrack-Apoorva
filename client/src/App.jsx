@@ -1,8 +1,8 @@
-
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/LoginPage.jsx'
-import Register from './pages/Register'
-import Dashboard from './pages/Dashboard'
+import Register from './pages/Register.jsx'
+import Dashboard from './pages/Dashboard.jsx'
+import Analytics from './pages/Analytics.jsx'
 
 function App() {
   return (
@@ -12,6 +12,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/analytics" element={<Analytics />} />
       </Routes>
     </BrowserRouter>
   )
