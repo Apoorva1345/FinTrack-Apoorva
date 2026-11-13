@@ -56,8 +56,8 @@ function Dashboard() {
       }
 
       const [summaryResponse, transactionResponse] = await Promise.all([
-        fetch('http://localhost:5000/api/transactions/summary', { headers }),
-        fetch('http://localhost:5000/api/transactions', { headers }),
+        fetch('https://fintrack-apoorva.onrender.com/api/transactions/summary', { headers }),
+        fetch('https://fintrack-apoorva.onrender.com/api/transactions', { headers }),
       ])
 
       if (
@@ -96,7 +96,7 @@ function Dashboard() {
     setMessage('')
 
     try {
-      const response = await fetch('http://localhost:5000/api/transactions', {
+      const response = await fetch('https://fintrack-apoorva.onrender.com/api/transactions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -154,7 +154,7 @@ function Dashboard() {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/transactions/${editingId}`,
+        `https://fintrack-apoorva.onrender.com/api/transactions/${editingId}`,
         {
           method: 'PUT',
           headers: {
@@ -194,7 +194,7 @@ function Dashboard() {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/transactions/${id}`,
+        `https://fintrack-apoorva.onrender.com/api/transactions/${id}`,
         {
           method: 'DELETE',
           headers: {

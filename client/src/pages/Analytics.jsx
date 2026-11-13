@@ -19,7 +19,7 @@ function Analytics() {
 
       try {
         const response = await fetch(
-          'http://localhost:5000/api/transactions',
+          'https://fintrack-apoorva.onrender.com/api/transactions',
           {
             headers: {
               Authorization: `Bearer ${token}`,
