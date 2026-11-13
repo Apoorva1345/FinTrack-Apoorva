@@ -48,7 +48,9 @@ app.post("/api/auth/register", async (req, res) => {
     }
 
     if (password.length < 8) {
-      return res.status(400).json({ message: "Password must be at least 8 characters" });
+      return res.status(400).json({
+        message: "Password must be at least 8 characters",
+      });
     }
 
     const normalizedEmail = email.toLowerCase().trim();
@@ -56,7 +58,9 @@ app.post("/api/auth/register", async (req, res) => {
     const existingUser = await User.findOne({ email: normalizedEmail });
 
     if (existingUser) {
-      return res.status(409).json({ message: "An account with this email already exists" });
+      return res.status(409).json({
+        message: "An account with this email already exists",
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -94,19 +98,27 @@ app.post("/api/auth/login", async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: "Please enter email and password" });
+      return res.status(400).json({
+        message: "Please enter email and password",
+      });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    const user = await User.findOne({
+      email: email.toLowerCase().trim(),
+    });
 
     if (!user) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({
+        message: "Invalid email or password",
+      });
     }
 
     const passwordCorrect = await bcrypt.compare(password, user.password);
 
     if (!passwordCorrect) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({
+        message: "Invalid email or password",
+      });
     }
 
     const token = jwt.sign(
@@ -136,20 +148,26 @@ app.post("/api/transactions", authenticateUser, async (req, res) => {
     const { title, amount, type, category, date, note } = req.body;
 
     if (!title || !amount || !type || !category) {
-      return res.status(400).json({ message: "Please fill in all required fields" });
+      return res.status(400).json({
+        message: "Please fill in all required fields",
+      });
     }
 
     if (!Number.isFinite(Number(amount)) || Number(amount) <= 0) {
-      return res.status(400).json({ message: "Enter a valid positive amount" });
+      return res.status(400).json({
+        message: "Enter a valid positive amount",
+      });
     }
 
     if (!["income", "expense"].includes(type)) {
-      return res.status(400).json({ message: "Invalid transaction type" });
+      return res.status(400).json({
+        message: "Invalid transaction type",
+      });
     }
 
     const transaction = await Transaction.create({
       user: req.userId,
-      title,
+      title: title.trim(),
       amount: Number(amount),
       type,
       category,
@@ -163,19 +181,84 @@ app.post("/api/transactions", authenticateUser, async (req, res) => {
     });
   } catch (error) {
     console.error("Add transaction error:", error.message);
-    res.status(500).json({ message: "Could not add transaction" });
+    res.status(500).json({
+      message: "Could not add transaction",
+    });
   }
 });
 
 // Get user's transactions
 app.get("/api/transactions", authenticateUser, async (req, res) => {
   try {
-    const transactions = await Transaction.find({ user: req.userId })
-      .sort({ date: -1 });
+    const transactions = await Transaction.find({
+      user: req.userId,
+    }).sort({ date: -1 });
 
     res.json(transactions);
   } catch (error) {
-    res.status(500).json({ message: "Could not fetch transactions" });
+    res.status(500).json({
+      message: "Could not fetch transactions",
+    });
+  }
+});
+
+// EDIT transaction
+app.put("/api/transactions/:id", authenticateUser, async (req, res) => {
+  try {
+    const { title, amount, type, category, date, note } = req.body;
+
+    if (!title || !amount || !type || !category) {
+      return res.status(400).json({
+        message: "Please fill in all required fields",
+      });
+    }
+
+    if (!Number.isFinite(Number(amount)) || Number(amount) <= 0) {
+      return res.status(400).json({
+        message: "Enter a valid positive amount",
+      });
+    }
+
+    if (!["income", "expense"].includes(type)) {
+      return res.status(400).json({
+        message: "Invalid transaction type",
+      });
+    }
+
+    const updatedTransaction = await Transaction.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        user: req.userId,
+      },
+      {
+        title: title.trim(),
+        amount: Number(amount),
+        type,
+        category,
+        date: date || Date.now(),
+        note: note || "",
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!updatedTransaction) {
+      return res.status(404).json({
+        message: "Transaction not found",
+      });
+    }
+
+    res.json({
+      message: "Transaction updated successfully",
+      transaction: updatedTransaction,
+    });
+  } catch (error) {
+    console.error("Update transaction error:", error.message);
+    res.status(500).json({
+      message: "Could not update transaction",
+    });
   }
 });
 
@@ -188,19 +271,27 @@ app.delete("/api/transactions/:id", authenticateUser, async (req, res) => {
     });
 
     if (!transaction) {
-      return res.status(404).json({ message: "Transaction not found" });
+      return res.status(404).json({
+        message: "Transaction not found",
+      });
     }
 
-    res.json({ message: "Transaction deleted successfully" });
+    res.json({
+      message: "Transaction deleted successfully",
+    });
   } catch (error) {
-    res.status(500).json({ message: "Could not delete transaction" });
+    res.status(500).json({
+      message: "Could not delete transaction",
+    });
   }
 });
 
 // Dashboard summary
 app.get("/api/transactions/summary", authenticateUser, async (req, res) => {
   try {
-    const transactions = await Transaction.find({ user: req.userId });
+    const transactions = await Transaction.find({
+      user: req.userId,
+    });
 
     const income = transactions
       .filter((item) => item.type === "income")
@@ -217,7 +308,9 @@ app.get("/api/transactions/summary", authenticateUser, async (req, res) => {
       transactionCount: transactions.length,
     });
   } catch (error) {
-    res.status(500).json({ message: "Could not calculate summary" });
+    res.status(500).json({
+      message: "Could not calculate summary",
+    });
   }
 });
 
@@ -225,7 +318,9 @@ app.get("/api/transactions/summary", authenticateUser, async (req, res) => {
 async function startServer() {
   try {
     if (!process.env.MONGO_URI || !process.env.JWT_SECRET) {
-      throw new Error("MONGO_URI and JWT_SECRET must be configured in .env");
+      throw new Error(
+        "MONGO_URI and JWT_SECRET must be configured in .env"
+      );
     }
 
     await mongoose.connect(process.env.MONGO_URI);
